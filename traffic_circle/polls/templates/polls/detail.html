@@ -1,7 +1,7 @@
 {% extends "polls/layout.html" %}
 
 {% block body %}
-    <h1>{{ question.question_text }}</h1>
+    <h2>{{ question.question_text }}</h2>
 
     {% if error_message %}
         <p>
@@ -21,4 +21,5 @@
         {% endfor %}
         <input type="submit" value="Vote">
     </form>
+    <a href="{% url 'polls:index' %}">Back to Polls List</a>
 {% endblock %}

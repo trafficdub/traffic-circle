@@ -1,20 +1,68 @@
 {% extends "polls/layout.html" %}
 
-{% block body %}
-    <h1>{{ question.question_text }}</h1>
+{%block head %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-    {% if error_message %}
-        <p>
-            <strong>
-                {{ error_message}}
-            </strong>
-        </p>
-    {% endif %}
-    
-        <ul>
+    <script type="text/javascript">
+        // Load google charts
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        // Draw the chart and set the chart values
+        function drawChart() {
+
+            var data = google.visualization.arrayToDataTable([
+            ['Choice', 'Vote'],
             {% for choice in question.choices.all %}
-                <li>{{ choice.choice_text }} has {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+                    ['{{ choice.choice_text }}', {{ choice.votes }}]{% if not forloop.last %},{% endif %}
             {% endfor %}
-        </ul>
-    <a href="{% url 'polls:detail' question.id %}">Vote again!</a>
+        ]);
+
+            var options = {
+            title: 'Voting result shown in bar chart',
+            chartArea: {width: '50%'},
+            hAxis: {
+                title: '# of votes',
+                minValue: 0
+            },
+            vAxis: {
+                title: 'Choices'
+            }
+            };
+
+            var chart = new google.visualization.BarChart(document.getElementById('result-barchart'));
+
+            chart.draw(data, options);
+            var choicelist = [
+                {% for choice in question.choices.all %}
+                    {{ choice.votes }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+            console.log();
+        }
+    </script>
+    
+
+{% endblock %}
+
+{% block body %}
+    <div>
+        <h2>{{ question.question_text }}</h2>
+        {% if error_message %}
+            <p>
+                <strong>
+                    {{ error_message}}
+                </strong>
+            </p>
+        {% endif %}
+        
+            <ul>
+                {% for choice in question.choices.all %}
+                    <li>{{ choice.choice_text }} has {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+                {% endfor %}
+            </ul>
+        <a href="{% url 'polls:detail' question.id %}">Vote again!</a>
+    </div>
+    <div id="result-barchart"></div>
+    <a href="{% url 'polls:index' %}">Back to Polls List</a>
 {% endblock %}

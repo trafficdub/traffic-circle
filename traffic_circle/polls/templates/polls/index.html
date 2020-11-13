@@ -1,6 +1,7 @@
 {% extends "polls/layout.html" %}
 
 {% block body%}
+    <h2>Polls</h2>
     {% if latest_question_list %}
     <ul>
         {% for question in latest_question_list %}
@@ -10,4 +11,11 @@
     {% else %}
         <p>No polls are available.</p>
     {% endif %}
+
+    <h3>Add another question</h3>
+    <form action="{% url 'polls:add_question' question_text%}" method="post">
+        {csrf_token}
+        <input id="add_question" type="text" placeholder="Type in your question">
+        <input id="submit" type="submit">
+    </form>
 {% endblock %}
