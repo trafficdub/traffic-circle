@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone as tz
 from django.views import generic
 
+from .forms import QuestionForm
 from .models import Question, Choice
 
 # Create your views here.
@@ -36,14 +37,16 @@ class ResultsView(generic.DetailView):
             pub_date__lte=tz.now()
         )
 
-def add_question(request, question_text):
+def add_question(request):
+    form = QuestionForm()
     if request.method == "POST":
-        try:
-            new_question = Question(question_text=question_text, pub_date=tz.now())
-        except KeyError:
-            return HttpResponseBadRequest("Invalid question, try entering again.")
-        new_question.save()
-        return HttpResponseRedirect(reverse("polls:index", args=[]))
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('polls:index'))
+    return render(request, "polls/add_question.html", {
+        'form': form,
+    })
 
 def vote(request, question_id):
     if request.method == "POST":

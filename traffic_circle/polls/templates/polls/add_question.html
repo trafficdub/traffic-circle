@@ -1,0 +1,17 @@
+{% extends "polls/layout.html" %}
+
+{% block polls_body%}
+
+{% if error_message %}
+<p>
+    <strong>
+        {{ error_message}}
+    </strong>
+</p>
+{% endif %}
+
+<form method="post">
+    {csrf_token}
+    {{ form }}
+</form>
+{% endblock %}

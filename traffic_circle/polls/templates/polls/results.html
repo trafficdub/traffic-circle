@@ -1,6 +1,6 @@
 {% extends "polls/layout.html" %}
 
-{%block head %}
+{% block head %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <script type="text/javascript">
@@ -45,7 +45,7 @@
 
 {% endblock %}
 
-{% block body %}
+{% block polls_body %}
     <div>
         <h2>{{ question.question_text }}</h2>
         {% if error_message %}
