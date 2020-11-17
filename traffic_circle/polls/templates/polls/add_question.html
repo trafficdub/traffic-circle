@@ -11,7 +11,7 @@
 {% endif %}
 
 <form method="post">
-    {csrf_token}
+    {% csrf_token %}
     {{ form }}
 </form>
 {% endblock %}

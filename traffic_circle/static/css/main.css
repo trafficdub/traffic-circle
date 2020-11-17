@@ -5,31 +5,63 @@
 }
 
 /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-.row.content {height: 100vh}
+.row.content {
+    min-height: calc(100vh - 97px);
 
-/* Set gray background color and 100% height */
+
+}
+
+/* Set gray background color and 100% height  */
 .sidenav {
 padding-top: 20px;
-background-color: #f1f1f1;
-height: 100%;
+background-color: #FFF6DB;
+min-height: calc(100vh - 97px);
+}
+
+.fa {
+    border-radius: 50%;
+  }
+  
+.btn-linkedin {
+    background: #0177b5;
+    color: #ffffff
+}
+
+.btn-youtube {
+    background: #c21d17;
+    color: #ffffff
+}
+
+.btn-topic {
+    background-color:lightblue !important;
+    border-color: lightgray;
+    margin-right:10px;
+}
+.btn-topic:active, .active {
+    background-color:cornflowerblue !important;
+    border-color: lightgray !important;
+    margin-right:10px;
 }
 
 /* Set black background color, white text and some padding */
 footer {
-background-color: #555;
-color: white;
-padding: 15px;
+    background-color: #555;
+    color: white;
+    padding: 5px;
+
+    }
+
+#footer-text {
+    padding-right: 15px;
 }
 
 /* On small screens, set height to 'auto' for sidenav and grid */
 @media screen and (max-width: 767px) {
 .sidenav {
-    height: auto;
-    padding: 15px;
-}
-.row.content {height:auto;} 
-}
+    display: none;
+}}
+
 
 li a {
-    color:gray
+    color:black
 }

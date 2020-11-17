@@ -1,21 +1,39 @@
 {% extends "polls/layout.html" %}
-
+{% load polls_extras %}
 {% block polls_body%}
-    <h2>Polls</h2>
-    {% if latest_question_list %}
-    <ul>
-        {% for question in latest_question_list %}
-        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-        {% endfor %}
-    </ul>
-    {% else %}
-        <p>No polls are available.</p>
-    {% endif %}
+    <div>
+        <h2>Survey</h2>
+        <h4>Most Recent Questions</h4>
+        {% if latest_question_list %}
+        <ul>
+            {% for question in latest_question_list %}
+            <li><a href="{% url 'polls:detail' question.id %}"><b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)</a></li>
+            {{ question.topic }}
+            {% endfor %}
+        </ul>
+        {% else %}
+            <p>No survey questions available.</p>
+        {% endif %}
+    </div>
+    <div>
+        <h4>Select by Topic</h4>
+        <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary btn-topic active">
+              <input type="checkbox" checked autocomplete="off"> Checkbox 1 (pre-checked)
+            </label>
+            <label class="btn btn-secondary btn-topic">
+              <input type="checkbox" autocomplete="off"> Checkbox 2
+            </label>
+            <label class="btn btn-secondary btn-topic">
+              <input type="checkbox" autocomplete="off"> Checkbox 3
+            </label>
+        </div>
+    </div>
 
-    <h3>Add another question</h3>
-    <form action="{% url 'polls:add_question' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input id="submit" type="submit">
-    </form>
+    <p>
+        <div>
+            <a href="{% url 'polls:add_question'%}" role="button" class="btn btn-secondary btn-mi">Submit a question</a>
+        </div>
+    </p>
+
 {% endblock %}

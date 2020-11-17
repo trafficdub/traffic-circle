@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone as tz
 from django.views import generic
+from django.db.models import Avg, Count, Min, Sum
 
 from .forms import QuestionForm
 from .models import Question, Choice
@@ -13,11 +14,18 @@ from .models import Question, Choice
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
+    paginate_by = 10
 
     def get_queryset(self):
         return Question.objects.filter(
             pub_date__lte=tz.now()
         ).order_by('-pub_date')[:5]
+    
+    def get_context_data(self, **kwargs):
+        context = super(IndexView,self).get_context_data(**kwargs)
+        context['votes'] = Choice.objects.values('question').annotate(total_vote=Sum('votes'))
+        return context
+        
 
 class DetailView(generic.DetailView):
     model = Question
