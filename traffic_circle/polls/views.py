@@ -7,7 +7,7 @@ from django.views import generic
 from django.db.models import Avg, Count, Min, Sum
 
 from .forms import QuestionForm
-from .models import Question, Choice
+from .models import Question, Choice, Topic
 
 # Create your views here.
 
@@ -24,6 +24,7 @@ class IndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(IndexView,self).get_context_data(**kwargs)
         context['votes'] = Choice.objects.values('question').annotate(total_vote=Sum('votes'))
+        context['topics'] = Topic.objects.all()
         return context
         
 
@@ -68,4 +69,6 @@ def vote(request, question_id):
             })
         else:
             selected_choice.update(votes=F('votes') + 1)
-            return HttpResponseRedirect(reverse('polls:results', args=[question.id]))
+            return HttpResponseRedirect(reverse('polls:index'))
+            # return HttpResponseRedirect(reverse('polls:results', args=[question.id]))
+            # return HttpResponseRedirect(reverse('polls:index', args=[]))

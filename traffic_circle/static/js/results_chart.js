@@ -3,8 +3,7 @@ google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart);
 var chartData = arrayFromTemplate;
 // Draw the chart and set the chart values
-function drawChart(chartDataArray) {
-    console.log(chartDataArray);
+function drawChart() {
     var data = google.visualization.arrayToDataTable(
         chartData
     );
@@ -13,15 +12,18 @@ function drawChart(chartDataArray) {
     chartArea: {width: '50%'},
     hAxis: {
         title: '# of votes',
-        minValue: 0
+        minValue: 0,
+        format: '#',
+        minorGridlines: {
+            color: 'transparent',
+        }
     },
     vAxis: {
         title: 'Choices'
     }
     };
 
-    var chart = new google.visualization.BarChart(document.getElementById('result-barchart'));
+    var chart = new google.visualization.BarChart(document.getElementById('result-barchart2'));
 
     chart.draw(data, options);
-    console.log();
 }

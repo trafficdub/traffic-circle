@@ -5,3 +5,7 @@ register = template.Library()
 @register.filter(name='get_total_vote_by_q_id')
 def get_total_vote_by_q_id(choices_set, id):
     return choices_set.filter(question=id)[0]['total_vote']
+
+@register.filter(name='get_questions_by_topic')
+def get_questions_by_topic(questions, topic):
+    return questions.get(topic=topic)

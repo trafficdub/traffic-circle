@@ -19,8 +19,8 @@ class Topic(models.Model):
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
-    category = models.ManyToManyField(Category, related_name='category')
-    topic = models.ManyToManyField(Topic, related_name='topic')
+    category = models.ManyToManyField(Category, related_name='questions')
+    topic = models.ManyToManyField(Topic, related_name='questions')
 
     def __str__(self):
         return self.question_text

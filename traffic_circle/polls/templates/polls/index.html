@@ -1,32 +1,141 @@
 {% extends "polls/layout.html" %}
 {% load polls_extras %}
+{% load static %}
+{% block head %}
+<style>
+    .btn-topic {
+        background-color:lightblue !important;
+        border-color: lightgray;
+        margin-right:10px;
+    }
+    .btn-topic:active, .btn-topic.active {
+        background-color:cornflowerblue !important;
+        border-color: lightgray !important;
+        margin-right:10px;
+    }
+
+    .q-text {
+        color: black;
+        background-color: whitesmoke;
+        padding: 0;
+        text-align: left;
+        width: 100%;
+    }
+
+    .question-col {
+        margin: 2px;
+        border: none;
+    }
+
+    .flex-label {
+        display: flex;
+    }
+    
+    input[type=radio] {
+        margin-top: 6px;
+        margin-right: 12px;
+    }
+
+    .vote-button {
+        margin-top: 10px;
+
+    }
+</style>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    var questionIdArrayFromTemplate = [
+        {% for question in latest_question_list %}
+        '{{ question.id }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+
+</script>
+<script type="text/javascript" src= "{% static 'js/results_chart.js' %}"></script>
+<script type="text/javascript" src= "{% static 'js/collapse.js' %}"></script>
+
+{% endblock %}
 {% block polls_body%}
     <div>
+        <script>
+
+        </script>
         <h2>Survey</h2>
         <h4>Most Recent Questions</h4>
         {% if latest_question_list %}
         <ul>
             {% for question in latest_question_list %}
-            <li><a href="{% url 'polls:detail' question.id %}"><b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)</a></li>
-            {{ question.topic }}
+
+                    <button class="btn btn-link q-text" id="question-{{ question.id }}" type="button" data-toggle="collapse" data-target=".multi-collapse-{{ question.id }}" aria-expanded="true" aria-controls="q-choices-{{ question.id }} q-results-{{ question.id }}">
+                        <b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)
+                    </button>
+                    <div class="row">
+                        <div class="col">
+                            <div class="collapse multi-collapse-{{ question.id }}" id="q-choices-{{ question.id }}">
+                                <div class="card card-body question-col">
+                                    <form action="{% url 'polls:vote' question.id %}" method="post">
+                                        {% csrf_token %}
+                                        {% for choice in question.choices.all %}
+                                            <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                                <input type="radio" name="choice" id="choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
+                                                <span>{{ choice.choice_text }}</span>
+                                            </label>
+                                        {% endfor %}
+                                        <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="vote-{{ question.id }}" type="submit" value="Vote">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="collapse multi-collapse-{{ question.id }}" id="q-results-{{ question.id }}">
+                                <div class="card card-body question-col" id="result-barchart{{ question.id }}">
+                                    test
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        
+                            
+                        $("#vote-{{ question.id }}").click(() => {
+                            $("#question-{{ question.id }}").prop('disabled',true);
+                            $(".multi-collapse-{{ question.id }}").collapse('show');
+                            questionExpanded{{ question.id }} = true;
+                        });
+        
+        
+                    </script>
+
             {% endfor %}
         </ul>
         {% else %}
             <p>No survey questions available.</p>
         {% endif %}
+
     </div>
     <div>
         <h4>Select by Topic</h4>
+
         <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
             <label class="btn btn-secondary btn-topic active">
-              <input type="checkbox" checked autocomplete="off"> Checkbox 1 (pre-checked)
+                <input type="checkbox" checked autocomplete="off"> All
             </label>
+            {% for topic in topics %}
             <label class="btn btn-secondary btn-topic">
-              <input type="checkbox" autocomplete="off"> Checkbox 2
+                <input type="checkbox" autocomplete="off"> {{ topic }} {{topic.id}}
             </label>
-            <label class="btn btn-secondary btn-topic">
-              <input type="checkbox" autocomplete="off"> Checkbox 3
-            </label>
+            {% endfor %}
+
+        </div>
+
+        <div id='question-filtered-by-topic'>
+            {% for topic in topics %}
+                <ul>
+                    {% for question in topic.questions.all %}
+                    <li>{{ question.question_text }}</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
         </div>
     </div>
 
