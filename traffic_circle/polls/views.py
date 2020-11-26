@@ -1,10 +1,12 @@
-from django.http import HttpResponse,HttpResponseBadRequest,HttpResponseRedirect
+from django.http import HttpResponse,HttpResponseBadRequest,HttpResponseRedirect, JsonResponse
+from django.contrib import messages
 from django.db.models import F
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone as tz
 from django.views import generic
 from django.db.models import Avg, Count, Min, Sum
+from django.core import serializers
 
 from .forms import QuestionForm
 from .models import Question, Choice, Topic
@@ -37,14 +39,23 @@ class DetailView(generic.DetailView):
             pub_date__lte=tz.now()
         )
 
-class ResultsView(generic.DetailView):
-    model = Question
-    template_name = 'polls/results.html'
+def results(request, pk):
+    # choices = Question.objects.filter(pk=pk)[0].choices.all()
+    serialized_choice = serializers.serialize('json', Question.objects.filter(pk=pk)[0].choices.all())
 
-    def get_queryset(self):
-        return Question.objects.filter(
-            pub_date__lte=tz.now()
-        )
+    # choiceCount = choices.count()
+    # results = []
+    # for i in range(0, choiceCount):
+    #     choice = choices.all()[i]
+    #     results.append(f"['text': {choice}, 'vote': {choice.vote}]")
+    # return HttpResponse(results)
+    return JsonResponse({
+        'choices': serialized_choice
+    })
+
+def question(request, pk):
+
+    return HttpResponse(Question.objects.filter(pk=pk))
 
 def add_question(request):
     form = QuestionForm()
@@ -63,12 +74,9 @@ def vote(request, question_id):
         try:
             selected_choice = question.choices.filter(pk=request.POST['choice'])
         except (KeyError, Choice.DoesNotExist):
-            return render(request, 'polls/detail.html', {
-                'question': question,
-                'error_message': "Invalid selection.",
-            })
+            messages.warning(request, 'Invalid choice, please select again.')
+            return HttpResponseRedirect(reverse('polls:index') + f"#question-{question_id}")
         else:
             selected_choice.update(votes=F('votes') + 1)
-            return HttpResponseRedirect(reverse('polls:index'))
-            # return HttpResponseRedirect(reverse('polls:results', args=[question.id]))
-            # return HttpResponseRedirect(reverse('polls:index', args=[]))
+            messages.success(request, 'Voted successfully.')
+    return HttpResponseRedirect(reverse('polls:index') + f"#question-{question_id}")
