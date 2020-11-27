@@ -42,24 +42,20 @@
         width: 200px !important;
 
     }
+
+    #smaller-h4 {
+        font-size: 0.8em;
+    }
 </style>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src= "{% static 'js/polls_script.js' %}"></script>
 <script>
+
     var questionIdArrayFromTemplate = [
-        {% for question in latest_question_list %}
+        {% for question in all_questions %}
         '{{ question.id }}'{% if not forloop.last %},{% endif %}
         {% endfor %}
     ]
-
-    function getQuestion(questionId) {
-        fetch(`/question/${questionId}`)
-        .then(response => response.text())
-        .then(text => {
-            console.log(text);
-
-        })
-    }
 
     var messageList = [
         {% if messages %}
@@ -69,8 +65,6 @@
         {% endif %}
     ]
 
-
-
 </script>
 {% endblock %}
 {% block polls_body%}
@@ -78,62 +72,114 @@
 
         <h2>Survey</h2>
         <h4>Most Recent Questions</h4>
-        {% if latest_question_list %}
+        {% if all_questions %}
         <ul>
-            {% for question in latest_question_list %}
-
-                <button class="btn btn-link q-text" id="question-{{ question.id }}" type="button" data-toggle="collapse" data-target=".collapse-{{ question.id }}" data-questionId="{{ question.id }}" aria-expanded="true" aria-controls="q-choices-{{ question.id }}">
-                    <b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)
-                </button>
-                <div class="row">
-                    <div class="collapse collapse-{{ question.id }}" id="q-choices-{{ question.id }}">
-                        <div class="card card-body question-col" id="card-q-{{ question.id }}">
-                            <form action="{% url 'polls:vote' question.id %}" method="post">
-                                {% csrf_token %}
-                                {% for choice in question.choices.all %}
-                                    <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
-                                        <input type="radio" name="choice" id="choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
-                                        <span>{{ choice.choice_text }}</span>
-                                    </label>
-                                {% endfor %}
-                                <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="vote-{{ question.id }}" data-questionId="{{ question.id }}" type="submit" value="Vote">
-                            </form>
-                        </div>
+            {% for question in all_questions|get_recent_questions:3 %}
+            <button class="btn btn-link q-text" id="question-{{ question.id }}" type="button" data-toggle="collapse" data-target=".collapse-{{ question.id }}" data-questionId="{{ question.id }}" aria-expanded="true" aria-controls="q-choices-{{ question.id }}">
+                <b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)
+            </button>
+            <div class="row">
+                <div class="collapse collapse-{{ question.id }}" id="q-choices-{{ question.id }}">
+                    <div class="card card-body question-col" id="card-q-{{ question.id }}">
+                        <form action="{% url 'polls:vote' question.id %}" method="post">
+                            {% csrf_token %}
+                            {% for choice in question.choices.all %}
+                                <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                    <input type="radio" name="choice" id="choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
+                                    <span>{{ choice.choice_text }}</span>
+                                </label>
+                            {% endfor %}
+                            <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="vote-{{ question.id }}" data-questionId="{{ question.id }}" type="submit" value="Vote">
+                        </form>
                     </div>
                 </div>
-                <script>
-                </script>
+            </div>
             {% endfor %}
         </ul>
+
         {% else %}
             <p>No survey questions available.</p>
         {% endif %}
 
     </div>
     <div>
-        <h4>Select by Topic</h4>
+        <h4 id="select-by-topic">Select by Topic <span id="smaller-h4">(excluding questions from above)</span></h4>
 
         <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-secondary btn-topic active">
-                <input type="checkbox" checked autocomplete="off"> All
+            <label class="btn btn-secondary btn-topic" id="t-All" data-topic='t-All'>
+                <form>
+                    <input type="radio" class="input-btn-topic" id="input-t-All"> All
+                </form>
+                
             </label>
             {% for topic in topics %}
-            <label class="btn btn-secondary btn-topic">
-                <input type="checkbox" autocomplete="off"> {{ topic }} {{topic.id}}
+            <label class="btn btn-secondary btn-topic" id="t-{{ topic.id }}" data-topic='t-{{ topic.id }}'>
+                <form>
+                    <input type="radio" class="input-btn-topic" id="input-t-{{ topic.id }}"> {{ topic }} {{topic.id}}
+                </form>
             </label>
             {% endfor %}
-
         </div>
 
-        <div id='question-filtered-by-topic'>
-            {% for topic in topics %}
+        <div class='question-filtered-by-topic'>
+            <div class="t-All topic-select">
                 <ul>
-                    {% for question in topic.questions.all %}
-                    <li>{{ question.question_text }}</li>
+                    {% for question in all_questions|get_non_recent_questions:3 %}
+                    <button class="btn btn-link q-text" id="question-{{ question.id }}" type="button" data-toggle="collapse" data-target=".collapse-{{ question.id }}" data-questionId="{{ question.id }}" aria-expanded="true" aria-controls="q-choices-{{ question.id }}">
+                        <b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)
+                    </button>
+                    <div class="row">
+                        <div class="collapse collapse-{{ question.id }}" id="q-choices-{{ question.id }}">
+                            <div class="card card-body question-col" id="card-q-{{ question.id }}">
+                                <form action="{% url 'polls:vote' question.id %}" method="post">
+                                    {% csrf_token %}
+                                    {% for choice in question.choices.all %}
+                                        <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                            <input type="radio" name="choice" id="choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
+                                            <span>{{ choice.choice_text }}</span>
+                                        </label>
+                                    {% endfor %}
+                                    <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="vote-{{ question.id }}" data-questionId="{{ question.id }}" type="submit" value="Vote">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                 </ul>
+            </div>
+            {% for topic in topics %}
+                <div class="t-{{ topic.id }} topic-select">
+                    <ul>
+                        {% for question in topic|get_non_recent_questions_by_topic %}
+                        <button class="btn btn-link q-text" id="question-{{ question.id }}" type="button" data-toggle="collapse" data-target=".collapse-{{ question.id }}" data-questionId="{{ question.id }}" aria-expanded="true" aria-controls="q-choices-{{ question.id }}">
+                            <b>{{ question.question_text }}</b> (Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)
+                        </button>
+                        <div class="row">
+                            <div class="collapse collapse-{{ question.id }}" id="q-choices-{{ question.id }}">
+                                <div class="card card-body question-col" id="card-q-{{ question.id }}">
+                                    <form action="{% url 'polls:vote' question.id %}" method="post">
+                                        {% csrf_token %}
+                                        {% for choice in question.choices.all %}
+                                            <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                                <input type="radio" name="choice" id="choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
+                                                <span>{{ choice.choice_text }}</span>
+                                            </label>
+                                        {% endfor %}
+                                        <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="vote-{{ question.id }}" data-questionId="{{ question.id }}" type="submit" value="Vote">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endfor %}
         </div>
+
+        <script type="text/javascript">
+
+        </script>
+
     </div>
 
     <p>

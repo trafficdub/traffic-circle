@@ -8,20 +8,17 @@ from django.views import generic
 from django.db.models import Avg, Count, Min, Sum
 from django.core import serializers
 
-from .forms import QuestionForm
 from .models import Question, Choice, Topic
 
 # Create your views here.
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
-    context_object_name = 'latest_question_list'
+    context_object_name = 'all_questions'
     paginate_by = 10
 
     def get_queryset(self):
-        return Question.objects.filter(
-            pub_date__lte=tz.now()
-        ).order_by('-pub_date')[:5]
+        return Question.objects.order_by('-pub_date')
     
     def get_context_data(self, **kwargs):
         context = super(IndexView,self).get_context_data(**kwargs)
@@ -40,22 +37,26 @@ class DetailView(generic.DetailView):
         )
 
 def results(request, pk):
-    # choices = Question.objects.filter(pk=pk)[0].choices.all()
     serialized_choice = serializers.serialize('json', Question.objects.filter(pk=pk)[0].choices.all())
-
-    # choiceCount = choices.count()
-    # results = []
-    # for i in range(0, choiceCount):
-    #     choice = choices.all()[i]
-    #     results.append(f"['text': {choice}, 'vote': {choice.vote}]")
-    # return HttpResponse(results)
     return JsonResponse({
         'choices': serialized_choice
     })
 
 def question(request, pk):
-
     return HttpResponse(Question.objects.filter(pk=pk))
+
+def topic(request, topic_id):
+    if (request.method == "POST") and (topic_id != 'All'):
+        topic = get_object_or_404(Topic, pk=topic_id)
+        try:
+            selected_questions = topic.questions.filter(pk=request.POST['topic_id'])
+        except (KeyError, Topic.DoesNotExist):
+            messages.warning(request, 'Invalid topic, please select again.')
+            return HttpResponseRedirect(reverse('polls:index') + f"#question-{question_id}")
+        else:
+            selected_choice.update(votes=F('votes') + 1)
+            messages.success(request, 'Voted successfully.')
+    return HttpResponseRedirect(reverse('polls:index') + f"#select-by-topic")
 
 def add_question(request):
     form = QuestionForm()

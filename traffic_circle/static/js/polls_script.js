@@ -9,6 +9,44 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     })
 
+    if (localStorage.getItem('checkedButton') == undefined) {
+        localStorage.setItem('checkedButton', 't-All')
+    }
+
+    var checkedButtonId = `${localStorage.getItem('checkedButton')}`
+    // console.log(`saved var is ${checkedButtonId}`)
+    // console.log(document.getElementById(`${checkedButtonId}`));
+    document.getElementById(localStorage.getItem('checkedButton')).click();
+    document.getElementById(`input-${checkedButtonId}`).checked = true;
+    // console.log(`${checkedButtonId} is checked`);
+    // console.log(document.getElementById(`input-${checkedButtonId}`).checked);
+    // console.log(document.getElementById(`${checkedButtonId}`).checked);
+
+    document.querySelectorAll('.btn-topic').forEach(button => {
+        if (document.getElementById(`input-${button.id}`).checked) {
+            console.log(`${button.id} was checked`)
+            showHideQuestion(button);
+        }
+    })
+    document.querySelectorAll('.btn-topic').forEach(button => {
+        button.onclick = function() {
+            localStorage.setItem('checkedButton', this.id);
+            console.log(`${localStorage.getItem('checkedButton')} was clicked on`)
+            showHideQuestion(button);
+        };
+    })
+
+    // Show or hide questions based on the id of given topic button
+    function showHideQuestion(button) {
+        var inputValue = button.dataset.topic;
+        console.log(inputValue);
+        var targetBox = $("." + inputValue); 
+        $(".topic-select").not(targetBox).hide(); 
+        $(targetBox).show();
+    }
+
+
+
     // Display success or warning messages based on whether voting was successful.
     var messageArray = messageList;
     var messageTag = '';
@@ -49,12 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Display survey result for this question.
         if (disabledState) {
-            var cardBody = document.getElementById(`card-q-${questionId}`)
-            cardBody.innerHTML = 'test'
             const resultList = document.createElement('ul');
             resultList.setAttribute('id', `ul-result-${questionId}`);
             document.getElementById(`card-q-${questionId}`).append(resultList);
             getResult(questionId);
+            document.getElementById(`q-choices-${questionId}`).display = 'block';
 
             // Load google charts
             google.charts.load('current', {'packages':['corechart']});
@@ -71,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalVote = JSON.parse(data.choices).map(choice => choice.fields.votes).reduce((sum, vote) => sum + vote);
                 JSON.parse(data.choices).forEach(addResult);
             })
-            // var res = bills.map(bill => bill.pendingAmount).reduce((acc, bill) => bill + acc);
         }
 
         // Display survey results under question text
@@ -89,28 +125,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Draw the chart and set the chart values
         function drawChart() {
-            var width = document.getElementById(`question-${questionId}`).offsetWidth;
+            var width = (document.getElementById(`question-${questionId}`).offsetWidth) * 0.6;
             var data = google.visualization.arrayToDataTable(
                 resultChartData
             );
             var options = {
-            title: 'Voting result shown in bar chart',
-            chartArea:{left: 5, width:'100%', height:'100%'},
-            width: 500,
+            chartArea:{left: 5, width:'100%', height:'75%'},
+            width: width,
             colors: ['#d9e6ef'],
             bar: {
                 groupWidth: '75%'
             },
             hAxis: {
-                title: '# of votes',
+                textPosition: 'none',
                 minValue: 0,
                 format: '#',
                 minorGridlines: {
                     color: 'transparent',
+                },
+                gridlines: {
+                    color: 'transparent',
                 }
             },
             vAxis: {
-                title: 'Choices',
                 textPosition: 'in',
                 textStyle: {
                     color: 'black',
