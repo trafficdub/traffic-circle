@@ -15,7 +15,6 @@ from .models import Question, Choice, Topic
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'all_questions'
-    paginate_by = 10
 
     def get_queryset(self):
         return Question.objects.order_by('-pub_date')
@@ -23,7 +22,7 @@ class IndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(IndexView,self).get_context_data(**kwargs)
         context['votes'] = Choice.objects.values('question').annotate(total_vote=Sum('votes'))
-        context['topics'] = Topic.objects.all()
+        context['topics'] = Topic.objects.order_by('topic_text')
         return context
         
 
