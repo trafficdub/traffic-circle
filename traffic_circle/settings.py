@@ -26,7 +26,7 @@ SECRET_KEY = 'glaj7aamrktlbm&sxhh^uliuwprwqys*3qko)-)x!5emf&gh8x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['traffic-circle.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['traffic-circle.herokuapp.com', '127.0.0.1', 'trafficcircle-live.herokuapp.com']
 
 
 # Application definition
