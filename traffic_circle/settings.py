@@ -91,20 +91,10 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'tc_database',
-#         'USER': 'tc_admin',
-#         'PASSWORD': '>k^9}WeKz-uKp',
-#         'HOST': 'database-1.cobyvgheynoj.us-west-2.rds.amazonaws.com',
-#         'PORT': '5432'
-#     }
-# }
 
-# import dj_database_url
-# db_from_env = dj_database_url.config()
-# DATABASES['default'].update(db_from_env)
+import dj_database_url
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
