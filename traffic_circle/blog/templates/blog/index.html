@@ -1,0 +1,81 @@
+{% extends "blog/layout.html" %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+{% block blog_body %}
+<div class="nav-scroller py-1 mb-2">
+    <nav class="nav d-flex justify-content-center">
+        {% for category in categories %}
+            <a class="p-2 text-muted" href="{% url 'blog:category' category.id %}">{{ category }}</a>
+
+        {% endfor %}
+    </nav>
+</div>
+
+
+
+<div class="jumbotron p-4 p-md-5 text-white rounded bg-dark" style="background-image: url('{{ first_featured_post.header_image.url }}'); background-size: 50% auto; background-repeat: no-repeat; background-position: right;">
+    <div class="col-md-6 px-0">
+      <h1 class="display-4 font-italic">{{ first_featured_post.title|title }}</h1>
+      <p class="lead my-3">{{ first_featured_post.blurb }}</p>
+      <p class="lead mb-0"><a href="{% url 'blog:detail' first_featured_post.id %}" class="text-white font-weight-bold">Continue reading...</a></p>
+    </div>
+</div>
+
+
+
+<main role="main" class="container">
+    <div class="row">
+      <div class="col-md-8 blog-main">
+
+        {% for post in all_posts %}
+        <div class="blog-post">
+            <h2 class="blog-post-title"><a href="{% url 'blog:detail' post.id %}">{{ post.title }}</a></h2>
+            <p class="blog-post-meta">{{ post.pub_date }} by <a href="#">{{ post.author.first_name }}</a></p>
+            <p>
+                {{ post.blurb }}
+            </p>
+          
+        </div><!-- /.blog-post -->
+        {% empty %}
+        <div class="blog-post">
+            No other posts yet...
+        </div>
+        {% endfor %}
+
+  
+      </div><!-- /.blog-main -->
+      <aside class="col-md-4 blog-sidebar">
+        <div class="p-4 mb-3 bg-light rounded">
+          <h4 class="font-italic">About</h4>
+          <p class="mb-0">Etiam porta <em>sem malesuada magna</em> mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.</p>
+        </div>
+  
+        <div class="p-4">
+          <h4 class="font-italic">Archives</h4>
+          <ol class="list-unstyled mb-0">
+            <li><a href="#">March 2014</a></li>
+            <li><a href="#">February 2014</a></li>
+            <li><a href="#">January 2014</a></li>
+            <li><a href="#">December 2013</a></li>
+            <li><a href="#">November 2013</a></li>
+            <li><a href="#">October 2013</a></li>
+            <li><a href="#">September 2013</a></li>
+            <li><a href="#">August 2013</a></li>
+            <li><a href="#">July 2013</a></li>
+            <li><a href="#">June 2013</a></li>
+            <li><a href="#">May 2013</a></li>
+            <li><a href="#">April 2013</a></li>
+          </ol>
+        </div>
+  
+
+      </aside><!-- /.blog-sidebar -->
+
+  
+    </div><!-- /.row -->
+  
+  </main><!-- /.container -->
+
+{% endblock %}

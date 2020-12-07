@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'glaj7aamrktlbm&sxhh^uliuwprwqys*3qko)-)x!5emf&gh8x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['traffic-circle.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -41,7 +41,10 @@ INSTALLED_APPS = [
 
     # internal apps
     'polls.apps.PollsConfig',
+    'blog.apps.BlogConfig',
     'fuzzylogic',
+    'ckeditor',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -124,8 +127,33 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 
+# MEDIA_URL = 'images/'
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static')
+# ]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
+
+# S3 bucket config
+AWS_ACCESS_KEY_ID = 'AKIAZDZCY24MQ4I5IY2H'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'traffic-circle'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+AWS_DEFAULT_ACL = 'public-read'
+
+AWS_LOCATION = 'static'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+# AWS_S3_FILE_OVERWRITE = False
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+PUBLIC_MEDIA_LOCATION = 'images'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+DEFAULT_FILE_STORAGE = 'traffic_circle.storage_backends.PublicMediaStorage'

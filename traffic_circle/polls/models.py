@@ -4,11 +4,6 @@ from django.db import models
 from django.utils import timezone
 
 # Create your models here.
-class Category(models.Model):
-    category_text = models.CharField(max_length=64, blank=True)
-
-    def __str__(self):
-        return self.category_text
 
 class Topic(models.Model):
     topic_text = models.CharField(max_length=64, blank=True)
@@ -19,7 +14,6 @@ class Topic(models.Model):
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
-    category = models.ManyToManyField(Category, related_name='questions')
     topic = models.ManyToManyField(Topic, related_name='questions')
 
     def __str__(self):

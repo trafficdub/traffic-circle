@@ -7,6 +7,11 @@ from django.utils import timezone as tz
 from django.views import generic
 from django.db.models import Avg, Count, Min, Sum
 from django.core import serializers
+# from django.utils import simplejson
+
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 from .models import Question, Choice, Topic
 
@@ -23,6 +28,10 @@ class IndexView(generic.ListView):
         context = super(IndexView,self).get_context_data(**kwargs)
         context['votes'] = Choice.objects.values('question').annotate(total_vote=Sum('votes'))
         context['topics'] = Topic.objects.order_by('topic_text')
+        # choices = Choice.objects.values_list('question', 'id' ,'votes')
+
+        # choices_json = json.dumps(list(choices), cls=DjangoJSONEncoder)
+        # context['votes_test'] = choices_json
         return context
         
 
@@ -71,12 +80,13 @@ def add_question(request):
 def vote(request, question_id):
     if request.method == "POST":
         question = get_object_or_404(Question, pk=question_id)
+        topic = request.POST['topic']
         try:
             selected_choice = question.choices.filter(pk=request.POST['choice'])
         except (KeyError, Choice.DoesNotExist):
             messages.warning(request, 'Invalid choice, please select again.')
-            return HttpResponseRedirect(reverse('polls:index') + f"#question-{question_id}")
+            return HttpResponseRedirect(reverse('polls:index') + f"#{topic}-question-{question_id}")
         else:
             selected_choice.update(votes=F('votes') + 1)
             messages.success(request, 'Voted successfully.')
-    return HttpResponseRedirect(reverse('polls:index') + f"#question-{question_id}")
+    return HttpResponseRedirect(reverse('polls:index') + f"#{topic}-question-{question_id}")

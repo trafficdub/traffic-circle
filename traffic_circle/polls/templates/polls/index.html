@@ -30,6 +30,13 @@
         margin-top: 5px;
     }
 
+    .result-col {
+        margin: 2px;
+        height: 200px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        border: none;
+    }
 
     .question-col {
         margin: 2px;
@@ -65,10 +72,13 @@
         font-size: 0.9em;
         font-weight: normal;
     }
+
 </style>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src= "{% static 'js/polls_script.js' %}"></script>
 <script>
+
+    // var votesFromTemplate = '{{ votes_test }}'
 
     var questionIdArrayFromTemplate = [
         {% for question in all_questions %}
@@ -98,9 +108,10 @@
     <div>
 
         <h2>Survey</h2>
+        
         <h4 id="recent-questions">Most Recent Questions</h4>
         {% if all_questions %}
-        
+        <div class="recent">
             {% for question in all_questions|get_recent_questions:3 %}
             <button class="btn btn-link q-text question-{{ question.id }}" id="recent-question-{{ question.id }}" type="button" data-toggle="collapse" data-target=".collapse-{{ question.id }}" data-questionId="{{ question.id }}" aria-expanded="true" aria-controls="q-choices-{{ question.id }}">
                 {{ question.question_text }} <span class="publish-info">(Published at {{ question.pub_date }}, {{ votes|get_total_vote_by_q_id:question.id}} vote{{ votes|get_total_vote_by_q_id:question.id|pluralize}} so far.)</span>
@@ -111,7 +122,8 @@
                         <form action="{% url 'polls:vote' question.id %}" method="post">
                             {% csrf_token %}
                             {% for choice in question.choices.all %}
-                                <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                <label class="flex-label">
+                                    <input type="hidden" name="topic" value="recent">
                                     <input type="radio" name="choice" id="recent-choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
                                     <span>{{ choice.choice_text }}</span>
                                 </label>
@@ -122,6 +134,8 @@
                 </div>
             </div>
             {% endfor %}
+        </div>
+
         
 
         {% else %}
@@ -161,7 +175,8 @@
                             <form action="{% url 'polls:vote' question.id %}" method="post">
                                 {% csrf_token %}
                                 {% for choice in question.choices.all %}
-                                    <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                    <label class="flex-label">
+                                        <input type="hidden" name="topic" value="t-All">
                                         <input type="radio" name="choice" id="t-All-choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
                                         <span>{{ choice.choice_text }}</span>
                                     </label>
@@ -169,6 +184,7 @@
                                 <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="t-All-vote-{{ question.id }}" data-questionId="{{ question.id }}" data-section="t-All" type="submit" value="Vote">
                             </form>
                         </div>
+
                     </div>
                 </div>
                 {% endfor %}
@@ -187,7 +203,8 @@
                                     <form action="{% url 'polls:vote' question.id %}" method="post">
                                         {% csrf_token %}
                                         {% for choice in question.choices.all %}
-                                            <label class="flex-label" for="choice{{ question.id }}-{{ forloop.counter }}">
+                                            <label class="flex-label">
+                                                <input type="hidden" name="topic" value="t-{{topic.id}}">
                                                 <input type="radio" name="choice" id="t-{{topic.id}}-choice{{ question.id }}-{{ forloop.counter }}" value="{{ choice.id }}">
                                                 <span>{{ choice.choice_text }}</span>
                                             </label>
@@ -195,6 +212,7 @@
                                         <input class="btn btn-outline-dark btn-sm btn-block vote-button" id="t-{{topic.id}}-vote-{{ question.id }}" data-questionId="{{ question.id }}" data-section="t-{{ topic.id }}" type="submit" value="Vote">
                                     </form>
                                 </div>
+
                             </div>
                         </div>
                         {% endfor %}
