@@ -1,1 +1,1 @@
-web: gunicorn traffic_circle --log-file -
+web: gunicorn traffic_circle.wsgi
